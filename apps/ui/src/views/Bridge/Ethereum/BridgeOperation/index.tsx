@@ -312,17 +312,25 @@ export const BridgeOperationForm: React.FC = () => {
               createInstance()
                 .addrs(value)
                 .then((d) => {
-                  const addresses = d.filter(
-                    (addr) =>
-                      addr.key ===
-                      `address.${
-                        direction === BridgeDirection.In
-                          ? 'ckb'
-                          : network === 'Ethereum'
-                          ? 'eth'
-                          : network.toLowerCase()
-                      }`,
-                  );
+                  const addresses = d
+                    .filter(
+                      (addr) =>
+                        addr.key ===
+                          `address.${
+                            direction === BridgeDirection.In
+                              ? 'ckb'
+                              : network === 'Ethereum'
+                              ? 'eth'
+                              : network.toLowerCase()
+                          }` &&
+                        addr.value &&
+                        addr.value.length > 0,
+                    )
+                    .map((addr) =>
+                      addr.key === 'address.ckb'
+                        ? { ...addr, value: (envNetwork === 'mainnet' ? 'ckb' : 'ckt') + addr.value.substring(3) }
+                        : addr,
+                    );
                   if (addresses.length === 1) {
                     setRecipient(addresses[0].value);
                   } else if (addresses.length > 1) {
